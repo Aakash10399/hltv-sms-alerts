@@ -11,13 +11,23 @@ def hltvInfoGet(num):
     msg= requests.get("http://www.hltv.org/").text
     msg= msg[msg.find("newsRight"):]
     msg= msg[msg.find("<b>")+3:msg.find("</b>")]
+    flag=0
+    readMe = open('hltv.txt','r').read()
+    if readMe!=msg:
+        flag=1
+        saveFile = open('hltv.txt','w')
+        saveFile.write(msg)
+        saveFile.close()
     msg1= requests.get("http://www.hltv.org/").text
     msg1= msg1[msg1.find("newsRight"):]
     msg1= msg1[msg1.find("</b>")+4:]
     msg1= msg1[msg1.find("<b>")+3:msg1.find("</b>")]
     msg = "CSGO NEWS: "+msg+" , "+msg1+". Check www.hltv.org for more info."
     msg= msg.replace("&amp;","and")
-    smsSend(msg,num)
+    if flag==1:
+        smsSend(msg,num)
+    else:
+        print("Old News")
 def smsSend(message,number):    # Saiwal Krishna's code
     username = "way2smsuid"
     passwd = "way2smspass"
@@ -43,5 +53,6 @@ def smsSend(message,number):    # Saiwal Krishna's code
 def cronJob():
     while 0==0:
         hltvInfoGet("number_to_send")
-        time.sleep(10800) #every 3 hours
+        refresh_rate = 5 #in seconds
+        time.sleep(refresh_rate)
 cronJob()
