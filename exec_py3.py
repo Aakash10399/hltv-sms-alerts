@@ -6,47 +6,32 @@ import sys
 import os
 from stat import *
 import re
-import time
-import unirest
 msg_base= requests.get("http://www.hltv.org/").text
-def checkForUpdates():
-    global msg_base
-    try:
-        msg= msg_base
-        msg= msg[msg.find("newsRight"):]
-        msg= msg[msg.find("<b>")+3:msg.find("</b>")]    
-        flag=0
-        readMe = open('hltv.txt','r').read()    
-        if readMe!=msg:
-            flag=1
-            saveFile = open('hltv.txt','w')
-            saveFile.write(msg)
-            saveFile.close()
-        return flag 
-    except:
-        return 0
 def hltvInfoGet(num,username,passwd):
     global msg_base
     try:
         msg= msg_base
-        msg= msg[msg.find("newsRight"):]
-        msg= msg[msg.find("<b>")+3:msg.find("</b>")]
-        msg1= msg_base
-        msg1= msg1[msg1.find("newsRight"):]
-        msg1= msg1[msg1.find("</b>")+4:]
-        msg1= msg1[msg1.find("<b>")+3:msg1.find("</b>")]
-        msg2= msg_base
-        msg2= msg2[msg2.find("newsRight"):]
-        msg2= msg2[msg2.find("</b>")+4:]
-        msg2= msg2[msg2.find("</b>")+4:]
-        msg2= msg2[msg2.find("<b>")+3:msg2.find("</b>")]
-        msg = "CS NEWS: "+msg+", "+msg1+", "+msg2
+        msg= msg[msg.find("newstext"):]
+        msg= msg[msg.find(">"):msg.find("</div>")]
+        msg1 = msg_base
+        msg1 = msg1[msg1.find("newstext"):]
+        msg1 = msg1[msg1.find("</div>"):]
+        msg1 = msg1[msg1.find("newstext"):]
+        msg1 = msg1[msg1.find(">"):msg1.find("</div>")]
+        msg2 = msg_base
+        msg2 = msg2[msg2.find("newstext"):]
+        msg2 = msg2[msg2.find("</div>"):]
+        msg2 = msg2[msg2.find("newstext"):]
+        msg2 = msg2[msg2.find("</div>"):]
+        msg2 = msg2[msg2.find("newstext"):]
+        msg2 = msg2[msg2.find(">"):msg2.find("</div>")]
+        msg = "CS NEWS: "+msg+", "+msg1+", "+msg2+"."
         msg= msg.replace("&amp;","and")
         smsSend(msg,num,username,passwd)
     except:
         cronJob()
-def smsSend(message,number,username,passwd): 
-    try:   
+def smsSend(message,number,username,passwd):
+    try:
         message = "+".join(message.split(' '))
         url ='http://site24.way2sms.com/Login1.action?'
         data = 'username='+username+'&password='+passwd+'&Submit=Sign+in'
@@ -64,21 +49,14 @@ def smsSend(message,number,username,passwd):
         try:
             sms_sent_page = opener.open(send_sms_url,send_sms_data)
         except IOError:
-            print("error")      
+            print("error")
         print("success")
     except:
-        cronJob()       
+        cronJob()
 def cronJob():
     global msg_base
-    while 0==0:
-        msg_base= requests.get("http://www.hltv.org/").text
-        rt = checkForUpdates()
-        if rt==1:
-            hltvInfoGet("number_to_send","way2sms_uid","way2sms_pass") #Aakash Pahwa     
-            print("********************************")    
-        else:
-            print("Old News")
-            print("********************************")   
-        refresh_rate = 10 #in seconds
-        time.sleep(refresh_rate)  
+    msg_base= requests.get("http://www.hltv.org/").text
+    hltvInfoGet("recipient","userid","password") 
+    
+    print("********************************")
 cronJob()
